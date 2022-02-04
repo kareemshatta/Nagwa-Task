@@ -3,7 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1272644927536232" />
+        <entry key="app/src/main/res/drawable/ic_done.xml" value="0.1765625" />
+        <entry key="app/src/main/res/drawable/ic_download.xml" value="0.1765625" />
+        <entry key="app/src/main/res/drawable/ic_pdf.xml" value="0.1765625" />
+        <entry key="app/src/main/res/drawable/ic_retry.xml" value="0.1765625" />
+        <entry key="app/src/main/res/drawable/ic_video.xml" value="0.1765625" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/attachment_layout.xml" value="0.33" />
       </map>
     </option>
   </component>
