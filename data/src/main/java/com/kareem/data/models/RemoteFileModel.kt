@@ -3,6 +3,7 @@ package com.kareem.data.models
 import com.google.gson.annotations.SerializedName
 import com.kareem.domain.entities.FileEntity
 import com.kareem.domain.entities.FileState
+import com.kareem.domain.entities.FileType
 import com.kareem.domain.mapper.Mapper
 
 data class RemoteFileModel(
@@ -19,8 +20,15 @@ data class RemoteFileModel(
     override fun map(from: RemoteFileModel): FileEntity = FileEntity(
         id = id,
         name = name,
-        type = type,
+        type = convertToFileEnum(type),
         url = url,
         state = FileState.Idle
     )
+
+    fun convertToFileEnum(type: String): FileType {
+        return if (type == "PDF")
+            FileType.PDF
+        else
+            FileType.VIDEO
+    }
 }

@@ -2,15 +2,17 @@ package com.kareem.nagwa_task.di.component
 
 import android.app.Application
 import com.kareem.nagwa_task.App
+import com.kareem.nagwa_task.di.modules.ActivityBuilderModule
 import com.kareem.nagwa_task.di.modules.DataModule
 import com.kareem.nagwa_task.di.modules.AppModule
 import dagger.BindsInstance
 import dagger.Component
+import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 @Singleton
 @Component(
-    modules = [AppModule::class, DataModule::class]
+    modules = [AndroidSupportInjectionModule::class, ActivityBuilderModule::class, AppModule::class]
 )
 interface AppComponent {
 
@@ -24,5 +26,4 @@ interface AppComponent {
 
         fun build(): AppComponent
     }
-
 }
