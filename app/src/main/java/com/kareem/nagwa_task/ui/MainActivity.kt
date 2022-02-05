@@ -13,6 +13,7 @@ import com.kareem.nagwa_task.databinding.ActivityMainBinding
 import com.kareem.nagwa_task.ui.adapter.FileClickListener
 import com.kareem.nagwa_task.ui.adapter.FilesAdapter
 import com.kareem.nagwa_task.view_model.FilesViewModel
+import com.kareem.nagwa_task.view_model.ScreenState
 import com.kareem.nagwa_task.view_model.ViewModelFactory
 import dagger.android.AndroidInjection
 import javax.inject.Inject
@@ -50,14 +51,19 @@ class MainActivity : AppCompatActivity(), FileClickListener {
         })
     }
 
-    private fun onViewStateChanged(state: Resource<List<FileEntity>?>) {
+    private fun onViewStateChanged(state: ScreenState) {
         when (state) {
-            is Resource.Success -> handleViewWhenStateSuccess(state)
-            is Resource.Loading -> binding.progressBar.isVisible = true
-//            is Resource.DownloadingFilActivity -> handleDownloadingFileState(state.file)
-//            is Resource.FilActivityDownLoaded -> handleFileDownLoadedState(state.file)
-            is Resource.Error -> handleViewWhenStateFailed(state.message)
+            is ScreenState.DownloadFileIsFailed -> updateFileState(state.file)
+            is ScreenState.DownloadFileIsLoading -> updateFileState(state.file)
+            is ScreenState.FileIsDownloaded -> updateFileState(state.file)
+            is ScreenState.GetFilesIsFailure -> handleViewWhenStateFailed(state.msg)
+            is ScreenState.GetFilesIsLoading -> binding.progressBar.isVisible = true
+            is ScreenState.GetFilesIsSuccess -> handleViewWhenStateSuccess(state)
         }
+    }
+
+    private fun updateFileState(file: FileEntity) {
+        adapter.updateFile(file)
     }
 
     private fun handleViewWhenStateFailed(message: String?) {
@@ -67,13 +73,9 @@ class MainActivity : AppCompatActivity(), FileClickListener {
         }
     }
 
-    private fun handleViewWhenStateSuccess(state: Resource<List<FileEntity>?>) {
-        if (state.data.isNullOrEmpty()){
-            handleViewWhenStateFailed(state.message)
-        }else{
-            binding.progressBar.isVisible = false
-            adapter.setFileList(state.data!!)
-        }
+    private fun handleViewWhenStateSuccess(state: ScreenState.GetFilesIsSuccess) {
+        binding.progressBar.isVisible = false
+        adapter.setFileList(state.data)
     }
 
     private fun setupRecyclerView() {
@@ -86,13 +88,8 @@ class MainActivity : AppCompatActivity(), FileClickListener {
     }
 
     override fun onDownloadFileClick(file: FileEntity) {
-        when (file.state) {
-            is FileState.Idle -> {
-
-            }
-            is FileState.DownloadFailure -> {
-
-            }
+        if (file.state is FileState.Idle || file.state is FileState.DownloadFailure) {
+            viewModel.downloadFile(file)
         }
     }
 }

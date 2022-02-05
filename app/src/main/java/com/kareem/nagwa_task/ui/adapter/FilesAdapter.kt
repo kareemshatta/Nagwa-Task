@@ -1,6 +1,7 @@
 package com.kareem.nagwa_task.ui.adapter
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -13,7 +14,7 @@ import com.kareem.nagwa_task.databinding.AttachmentLayoutBinding
 
 class FilesAdapter(private val listener: FileClickListener) :
     RecyclerView.Adapter<FilesAdapter.FileViewHolder>() {
-    private var fileList: List<FileEntity> = emptyList()
+    private var fileList: MutableList<FileEntity> = mutableListOf()
 
     inner class FileViewHolder(val binding: AttachmentLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -38,7 +39,7 @@ class FilesAdapter(private val listener: FileClickListener) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         return FileViewHolder(
-            AttachmentLayoutBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+            AttachmentLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
     }
 
@@ -46,11 +47,33 @@ class FilesAdapter(private val listener: FileClickListener) :
         holder.bind(fileList[position])
     }
 
+    @SuppressLint("SetTextI18n")
+    override fun onBindViewHolder(holder: FileViewHolder, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+
+        val item = fileList[holder.adapterPosition]
+        handleFileState(holder, item.state)
+
+        if (payloads.firstOrNull() != null) {
+            with(holder.binding) {
+                val bundle = payloads.first() as Bundle
+                val progress = bundle.getInt("progressValue")
+                if (progress > -1) {
+                    pbDownloadFile.progress = progress
+                    tvDownloadPercentage.text = "$progress %"
+                } else {
+                    pbDownloadFile.isIndeterminate = progress <= -1
+
+                }
+            }
+        }
+    }
+
     override fun getItemCount() = fileList.size
 
     @JvmName("setFileList1")
     @SuppressLint("NotifyDataSetChanged")
-    fun setFileList(list: List<FileEntity>) {
+    fun setFileList(list: MutableList<FileEntity>) {
         this.fileList = list
         notifyDataSetChanged()
     }
@@ -58,7 +81,7 @@ class FilesAdapter(private val listener: FileClickListener) :
     private fun handleFileState(holder: FileViewHolder, state: FileState) {
         when (state) {
             is FileState.Idle -> bindFileIdle(holder)
-            is FileState.DownLoading -> bindDownloadingFile(holder)
+            is FileState.DownLoading -> bindDownloadingFile(holder, state.progress)
             is FileState.DownloadSuccess -> bindDownloadedFile(holder)
             is FileState.DownloadFailure -> bindFailureFile(holder)
         }
@@ -77,7 +100,7 @@ class FilesAdapter(private val listener: FileClickListener) :
         holder.binding.downloadProgressLayout.isVisible = false
     }
 
-    private fun bindDownloadingFile(holder: FileViewHolder) {
+    private fun bindDownloadingFile(holder: FileViewHolder, progress: Int) {
         holder.binding.ivDownloadLogo.isVisible = false
         holder.binding.downloadProgressLayout.isVisible = true
     }
@@ -87,43 +110,24 @@ class FilesAdapter(private val listener: FileClickListener) :
         holder.binding.ivDownloadLogo.isVisible = true
         holder.binding.downloadProgressLayout.isVisible = false
     }
+
+    fun updateFile(fileEntity: FileEntity) {
+        fileList.find { fileEntity.id == it.id }?.let {
+
+            val fileIndex = fileList.indexOf(it)
+            fileList[fileIndex] = fileEntity
+
+            if (fileEntity.state is FileState.DownLoading) {
+                notifyItemChanged(fileIndex, Bundle().apply {
+                    putInt("progressValue", (fileEntity.state as FileState.DownLoading).progress)
+                })
+            } else {
+                notifyItemChanged(fileIndex)
+            }
+        }
+    }
 }
 
 interface FileClickListener {
     fun onDownloadFileClick(file: FileEntity)
 }
-
-//override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
-//    super.onBindViewHolder(holder, position, payloads)
-//
-//    var item = items.get(holder.adapterPosition)
-//    handleFileState(holder,item.state)
-//
-//    if (payloads.firstOrNull() != null) {
-//        with(holder.itemView) {
-//
-//            var bundle = payloads.first() as Bundle
-//            val progress = bundle.getInt("progress")
-//            if (progress != -1) {
-//                pro_downlaod.progress = progress
-//                tv_percentage.text = "$progress%"
-//            } else {
-//                pro_downlaod.isIndeterminate = progress == -1
-//
-//            }
-//        }
-//    }
-//fun setProgress(fileEntity: FileEntity) {
-//    var model = getFile(fileEntity)
-//
-//    notifyItemChanged(items.indexOf(model), Bundle().apply {
-//        putInt("progress", fileEntity.progress)
-//    })
-//}
-//
-
-
-//}
-
-
-//private fun getFile(fileEntity: FileEntity) = items.find { fileEntity.id == it.id }

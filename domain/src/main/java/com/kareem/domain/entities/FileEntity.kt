@@ -15,7 +15,7 @@ enum class FileType{
 
 sealed class FileState {
     object Idle : FileState()
-    class DownLoading(progress: Int) : FileState()
+    class DownLoading(val progress: Int) : FileState()
     object DownloadSuccess : FileState()
-    class DownloadFailure(msg: String) : FileState()
+    object DownloadFailure : FileState()
 }

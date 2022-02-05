@@ -79,7 +79,7 @@ val dummyResponse =
         }
     ]"""
 
-fun getDummyResponse(): List<RemoteFileModel> {
+fun getDummyResponse(): MutableList<RemoteFileModel> {
     val gson = GsonBuilder().create()
-    return gson.fromJson(dummyResponse, Array<RemoteFileModel> ::class.java).toList()
+    return gson.fromJson(dummyResponse, Array<RemoteFileModel> ::class.java).toMutableList()
 }

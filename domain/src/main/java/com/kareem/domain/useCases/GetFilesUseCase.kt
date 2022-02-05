@@ -7,7 +7,7 @@ import io.reactivex.Observable
 import javax.inject.Inject
 
 class GetFilesUseCase @Inject constructor(private val repository: FilesRepository) {
-    operator fun invoke(): Observable<Resource<List<FileEntity>?>> {
+    operator fun invoke(): Observable<Resource<MutableList<FileEntity>?>> {
         return Observable.just(
             try {
                 val data = repository.getFiles()
